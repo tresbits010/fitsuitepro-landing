@@ -1,14 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowRight,
   Fingerprint,
   MessageCircle,
   Trophy,
   WifiOff,
-  Cpu,
   Cable,
   Zap,
-  ShieldCheck,
   Mail,
   MapPin,
   Dumbbell,
@@ -17,25 +15,46 @@ import {
   ChevronDown,
   HelpCircle,
   Flame,
-  Smartphone,
+  
   TrendingUp,
   Activity,
   Bot,
   Star,
   Clock,
-  Target,
-  Wrench
+ 
+  Wrench,
+  Send
 } from "lucide-react";
 
 // ==========================================
-// CONFIGURACIÓN DE DATOS (MINI-APP)
+// CONFIGURACIÓN DE DATOS
 // ==========================================
 const CLIENTES_GYMS = [
-  { nombre: "Nichea's Gym", logoUrl: "/nicheas-logo.jpg", mapsUrl: "https://maps.app.goo.gl/ChIJgb_HJQCZ9pURV-YVyu7cSCo" }, 
-  { nombre: "Iron Fitness", logoUrl: "", mapsUrl: "#" },
-  { nombre: "Spartan Center", logoUrl: "", mapsUrl: "#" },
-  { nombre: "Alpha Training", logoUrl: "", mapsUrl: "#" },
-  { nombre: "Power House", logoUrl: "", mapsUrl: "#" },
+  { 
+    nombre: "Nichea's Gym", 
+    logoUrl: "/nicheas-logo.jpg", 
+    mapsUrl: "https://www.google.com/maps?q=Nicheas+Gym+Viedma" 
+  }, 
+  { 
+    nombre: "Iron Fitness", 
+    logoUrl: "", 
+    mapsUrl: "https://www.google.com/maps?q=Iron+Fitness+Gym" 
+  },
+  { 
+    nombre: "Spartan Center", 
+    logoUrl: "", 
+    mapsUrl: "https://www.google.com/maps?q=Spartan+Center+Gym" 
+  },
+  { 
+    nombre: "Alpha Training", 
+    logoUrl: "", 
+    mapsUrl: "https://www.google.com/maps?q=Alpha+Training+Gym" 
+  },
+  { 
+    nombre: "Power House", 
+    logoUrl: "", 
+    mapsUrl: "https://www.google.com/maps?q=Power+House+Gym" 
+  },
 ];
 
 const FAQS = [
@@ -53,13 +72,39 @@ const FAQS = [
   }
 ];
 
-// Actualizado para que pidan directamente los 30 días
-const WHATSAPP_URL = "https://wa.me/5491100000000?text=Hola%20quiero%20mis%2030%20d%C3%ADas%20de%20prueba%20gratis%20de%20FitSuite%20Pro";
+// Tu número base para llamadas generales
+const WHATSAPP_BASE_PHONE = "5492920513369"; 
+const WHATSAPP_URL_GENERAL = `https://wa.me/${WHATSAPP_BASE_PHONE}?text=Hola%20quiero%20mis%2030%20d%C3%ADas%20de%20prueba%20gratis%20de%20FitSuite%20Pro`;
 
 export default function App() {
   const listaMarquesina = [...CLIENTES_GYMS, ...CLIENTES_GYMS, ...CLIENTES_GYMS];
   const [faqAbierta, setFaqAbierta] = useState<number | null>(null);
   const [hoveredBadge, setHoveredBadge] = useState<number | null>(null);
+  const [imagenesRotas, setImagenesRotas] = useState<Record<number, boolean>>({});
+  // Agregá esto a tus estados dentro de App()
+const [currentAppImg, setCurrentAppImg] = useState(0);
+const appImages = ["/AppPWa.JPG", "/AppPWa2.JPG", "/AppPWa3.JPG", "/AppPWa4.JPG"];
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setCurrentAppImg((prev) => (prev + 1) % appImages.length);
+  }, 3000);
+  return () => clearInterval(interval);
+}, []);
+
+  // ESTADO PARA EL FORMULARIO DE REUNIÓN
+  const [formData, setFormData] = useState({
+    nombre: "",
+    gym: "",
+    dolor: ""
+  });
+
+  // MANEJADOR DEL FORMULARIO HACIA WHATSAPP
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const mensaje = `¡Hola equipo de FitSuite Pro! 👋%0A%0ASoy *${formData.nombre}*, dueño de *${formData.gym}*.%0A%0AEl mayor problema que tengo hoy en mi gimnasio es:%0A_"${formData.dolor}"_%0A%0AQuiero agendar la demo para ver cómo pueden solucionarme esto.`;
+    window.open(`https://wa.me/${WHATSAPP_BASE_PHONE}?text=${mensaje}`, '_blank');
+  };
 
   return (
     <main className="min-h-screen bg-neutral-950 text-white selection:bg-orange-500/30 font-sans overflow-x-hidden">
@@ -79,11 +124,10 @@ export default function App() {
             <a href="#beneficios" className="hover:text-white transition-colors">Beneficios</a>
             <a href="#app" className="hover:text-white transition-colors">App Socios</a>
             <a href="#diferencial" className="hover:text-white transition-colors">Hardware</a>
-            <a href="#comparativa" className="hover:text-white transition-colors">Suscripción</a>
-            <a href="#faqs" className="hover:text-white transition-colors">FAQ</a>
+            <a href="#reunion" className="hover:text-white transition-colors text-orange-400 font-bold">Agendar Demo</a>
           </nav>
           <a
-            href={WHATSAPP_URL}
+            href={WHATSAPP_URL_GENERAL}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 h-10 px-5 rounded-md bg-white text-black font-bold shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:bg-orange-500 hover:text-white transition-all duration-300 text-sm"
@@ -111,9 +155,7 @@ export default function App() {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#reunion"
               className="group relative inline-flex items-center justify-center gap-2 h-14 px-10 rounded-full bg-gradient-to-r from-orange-500 to-red-600 text-white font-black text-lg overflow-hidden shadow-[0_0_30px_rgba(249,115,22,0.4)] hover:scale-105 transition-all duration-300 w-full sm:w-auto"
             >
               <Zap className="h-5 w-5 group-hover:scale-125 transition-transform" /> Comenzar 30 Días Gratis
@@ -134,7 +176,7 @@ export default function App() {
       {/* 01 — BENEFICIOS */}
       <section id="beneficios" className="py-24 relative max-w-7xl mx-auto px-6">
         <div className="max-w-3xl mb-16">
-          <div className="font-mono text-xs uppercase tracking-widest text-orange-500 mb-4">// 01 — Soluciones Operativas</div>
+          <div className="font-mono text-xs uppercase tracking-widest text-orange-500 mb-4"></div>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
             Diseñado para eliminar las fricciones diarias de tu negocio.
           </h2>
@@ -168,56 +210,37 @@ export default function App() {
         </div>
       </section>
 
-      {/* APP PWA Y RUTINAS */}
+     {/* APP PWA Y RUTINAS - CON CARRUSEL DINÁMICO */}
       <section id="app" className="py-24 bg-neutral-900/20 border-y border-neutral-900 relative">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
-          <div className="order-2 lg:order-1 relative">
+          
+          {/* Mockup con Carrusel */}
+          <div className="order-2 lg:order-1 relative flex justify-center">
             <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-blue-500/10 blur-3xl rounded-full" />
-            <div className="relative bg-neutral-950 border border-neutral-800 rounded-[2.5rem] p-4 shadow-2xl mx-auto max-w-sm transform -rotate-2 hover:rotate-0 transition-transform duration-500">
-              <div className="bg-neutral-900 rounded-[2rem] overflow-hidden border border-neutral-800 h-[600px] flex flex-col">
-                <div className="bg-neutral-950 p-6 border-b border-neutral-800 flex justify-between items-center">
-                  <div>
-                    <h3 className="font-bold text-lg">Hola, Campeón!</h3>
-                    <p className="text-orange-400 text-xs font-mono">Día 14 de racha 🔥</p>
-                  </div>
-                  <div className="h-10 w-10 rounded-full bg-neutral-800 border-2 border-orange-500 flex items-center justify-center">
-                    <User className="h-5 w-5 text-neutral-400"/>
-                  </div>
-                </div>
-                <div className="p-6 space-y-4 flex-1">
-                  <div className="bg-gradient-to-r from-neutral-800 to-neutral-900 border border-neutral-700 rounded-xl p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-bold text-orange-400 uppercase">Rutina de Hoy</span>
-                      <Target className="h-4 w-4 text-orange-400" />
-                    </div>
-                    <p className="font-bold text-lg">Fuerza Bruta Vol. 2</p>
-                    <p className="text-xs text-neutral-400 mt-1">4 ejercicios pendientes</p>
-                  </div>
-                  <div className="bg-neutral-800/50 rounded-xl p-4 border border-neutral-700/50">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="font-bold">Press de Banca</span>
-                      <span className="text-xs bg-neutral-700 px-2 py-1 rounded">Último: 100kg</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="flex-1 bg-neutral-900 rounded p-2 text-center text-sm border border-neutral-700">4 Series</div>
-                      <div className="flex-1 bg-neutral-900 rounded p-2 text-center text-sm border border-neutral-700">10 Reps</div>
-                    </div>
-                    <button className="w-full mt-4 bg-orange-500 text-white font-bold py-2 rounded-lg text-sm">Registrar Progreso</button>
-                  </div>
-                  <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-4 flex items-center gap-4">
-                    <Smartphone className="h-8 w-8 text-neutral-400" />
-                    <div>
-                      <p className="font-bold text-sm">QR de Acceso Listo</p>
-                      <p className="text-xs text-neutral-500">Acercá tu celular al molinete</p>
-                    </div>
-                  </div>
+            <div className="relative bg-neutral-950 border border-neutral-800 rounded-[2.5rem] p-3 shadow-2xl max-w-sm transform -rotate-2 hover:rotate-0 transition-transform duration-500">
+              <div className="bg-neutral-900 rounded-[2rem] overflow-hidden h-[600px] flex flex-col relative">
+                {/* Aquí está el carrusel: cambia según el estado currentAppImg */}
+                <img 
+                  src={appImages[currentAppImg]} 
+                  alt="FitSuite Pro App" 
+                  className="w-full h-full object-cover transition-opacity duration-500" 
+                />
+                {/* Indicadores de página */}
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                  {appImages.map((_, i) => (
+                    <div 
+                      key={i} 
+                      className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${i === currentAppImg ? 'bg-orange-500 w-4' : 'bg-neutral-600'}`} 
+                    />
+                  ))}
                 </div>
               </div>
             </div>
           </div>
           
+          {/* Texto descriptivo */}
           <div className="order-1 lg:order-2">
-            <div className="font-mono text-xs uppercase tracking-widest text-orange-500 mb-4">// 02 — ENGAGEMENT</div>
+            <div className="font-mono text-xs uppercase tracking-widest text-orange-500 mb-4"></div>
             <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
               La App que los vuelve <span className="text-orange-500">Adictos a tu Gimnasio.</span>
             </h2>
@@ -282,7 +305,7 @@ export default function App() {
       <section className="py-24 bg-gradient-to-b from-green-900/10 to-neutral-950 border-y border-green-900/20">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div>
-            <div className="font-mono text-xs uppercase tracking-widest text-green-500 mb-4">// 03 — INTELIGENCIA ARTIFICIAL</div>
+            <div className="font-mono text-xs uppercase tracking-widest text-green-500 mb-4"></div>
             <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
               Tu propio <span className="text-green-500">Asistente de Cobranzas</span> por WhatsApp.
             </h2>
@@ -321,7 +344,7 @@ export default function App() {
             
             <div className="space-y-4 font-sans text-sm">
               <div className="bg-neutral-800 rounded-2xl rounded-tl-sm p-4 w-10/12 text-neutral-300 leading-relaxed">
-                ¡Hola Marcos! 👋 Te aviso que tu plan "Musculación Full" vence mañana. Podés renovarlo desde este link rápido y pasás directo por el molinete. 💪
+                ¡Hola Marcos! 👋 Te aviso que tu plan "Musculación Full" vence mañana. Podés renovarlo por aca, cuando verifiquen tu pago, pasás directo por el molinete. 💪
               </div>
               <div className="flex justify-end">
                 <div className="bg-green-600 rounded-2xl rounded-tr-sm p-4 w-8/12 text-white leading-relaxed">
@@ -336,28 +359,52 @@ export default function App() {
         </div>
       </section>
 
-      {/* MARQUESINA DE VERIFICACIÓN REAL */}
-      <section id="clientes" className="py-12 bg-neutral-900/20 border-y border-neutral-900 overflow-hidden relative">
-        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-neutral-950 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-neutral-950 to-transparent z-10 pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-6 mb-6">
-          <p className="text-xs font-mono uppercase tracking-widest text-orange-500 font-semibold flex items-center gap-2">
+      {/* MARQUESINA DE VERIFICACIÓN REAL (LOGOS PROFESIONALES) */}
+      <section id="clientes" className="py-20 bg-neutral-900/30 border-y border-neutral-800 overflow-hidden relative">
+        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-neutral-950 to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-neutral-950 to-transparent z-10 pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-xs font-mono uppercase tracking-widest text-green-400 mb-4">
             <span className="h-2 w-2 rounded-full bg-green-500 animate-ping" />
-            Centros deportivos en producción real · Hacé clic para verificar ubicación
-          </p>
+            En Producción Real
+          </div>
+          <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
+            Gimnasios que ya escalaron al <span className="text-orange-500">siguiente nivel.</span>
+          </h2>
         </div>
+
         <div className="w-full overflow-hidden">
-          <div className="animate-marquee gap-6 py-2">
+          <div className="animate-marquee gap-8 py-4">
             {listaMarquesina.map((gym, idx) => (
               <a 
-                key={idx} href={gym.mapsUrl} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-4 bg-neutral-900/80 border border-neutral-800/60 px-8 py-4 rounded-xl min-w-[260px] justify-center transition-all hover:border-orange-500 hover:bg-neutral-900 group"
+                key={idx} 
+                href={gym.mapsUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-8 bg-neutral-900/60 backdrop-blur-sm border border-neutral-800/80 px-10 py-6 rounded-3xl min-w-[380px] justify-start flex-nowrap transition-all duration-300 hover:scale-105 hover:border-orange-500/80 hover:bg-neutral-900 hover:shadow-[0_0_50px_rgba(234,88,12,0.15)] group"
               >
-                <Dumbbell className="h-5 w-5 text-orange-500 shrink-0 group-hover:rotate-12 transition-transform" />
-                <div className="flex flex-col items-start">
-                  <span className="text-sm font-bold text-neutral-200 group-hover:text-orange-400 transition">{gym.nombre}</span>
-                  <span className="text-[10px] font-mono text-neutral-500 flex items-center gap-1 mt-0.5">
-                    <MapPin className="h-3 w-3 text-orange-500" /> Confirmar Ubicación ↗
+                <div className="h-16 w-auto max-w-[160px] flex items-center justify-center shrink-0">
+                  {gym.logoUrl && !imagenesRotas[idx] ? (
+                    <img 
+                      src={gym.logoUrl} 
+                      alt={gym.nombre} 
+                      onError={() => setImagenesRotas(prev => ({ ...prev, [idx]: true }))}
+                      className="h-full w-auto max-w-full object-contain filter group-hover:scale-110 transition-transform duration-300 brightness-110 drop-shadow-md" 
+                    />
+                  ) : (
+                    <div className="h-full aspect-square bg-orange-500/10 rounded-2xl flex items-center justify-center border border-orange-500/20 group-hover:bg-orange-500/20 transition-colors shrink-0">
+                      <Dumbbell className="h-8 w-8 text-orange-500 group-hover:rotate-12 transition-transform duration-300" />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex flex-col items-start text-left flex-1 min-w-0">
+                  <span className="text-xl font-extrabold tracking-tight text-white group-hover:text-orange-400 transition-colors line-clamp-1">
+                    {gym.nombre}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 mt-2 px-3.5 py-1 rounded-full bg-neutral-800 text-[10px] font-bold font-mono text-neutral-400 group-hover:bg-orange-500 group-hover:text-white transition-colors shadow-sm">
+                    <MapPin className="h-3 w-3" /> Maps ↗
                   </span>
                 </div>
               </a>
@@ -369,12 +416,12 @@ export default function App() {
       {/* 04 — HARDWARE TO SOFTWARE */}
       <section id="diferencial" className="py-24 max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
         <div>
-          <div className="font-mono text-xs uppercase tracking-widest text-orange-500 mb-4">// 04 — Integración Nativa</div>
+          <div className="font-mono text-xs uppercase tracking-widest text-orange-500 mb-4"></div>
           <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
             El Panel de Control de un <span className="text-orange-500">CEO.</span>
           </h2>
           <p className="text-lg text-neutral-400 mb-8 leading-relaxed">
-            Sin intermediarios ni middlewares complejos. FitSuite Pro se comunica directamente con las controladoras y relés de tu gimnasio mediante una infraestructura robusta.
+            Sin intermediarios ni middlewares aacomplejos. FitSuite Pro se comunica directamente con las controladoras y relés de tu gimnasio mediante una infraestructura robusta.
           </p>
           <ul className="space-y-4">
             {[
@@ -438,11 +485,55 @@ export default function App() {
           </div>
         </div>
       </section>
+{/* 05 — GESTIÓN DE RRHH */}
+      <section className="py-24 max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+        <div className="order-2 lg:order-1">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-600" />
+            <h3 className="text-xl font-black mb-6">Gestión de Personal</h3>
+            <div className="space-y-4 font-mono text-xs text-neutral-400">
+               <div className="flex justify-between p-3 bg-neutral-800 rounded-lg"><span>Juan Pérez (Profesor)</span><span className="text-purple-400 font-bold">$145.000</span></div>
+               <div className="flex justify-between p-3 bg-neutral-800 rounded-lg"><span>Comisión % (Plan Full)</span><span className="text-neutral-300">40%</span></div>
+               <div className="flex justify-between p-3 bg-neutral-800 rounded-lg"><span>Alquiler Espacio</span><span className="text-neutral-300">Mensual</span></div>
+            </div>
+          </div>
+        </div>
+        <div className="order-1 lg:order-2">
+          <div className="font-mono text-xs uppercase tracking-widest text-purple-500 mb-4"></div>
+          <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">Tu equipo, <span className="text-purple-400">bajo control total.</span></h2>
+          <p className="text-lg text-neutral-400 mb-8 leading-relaxed">
+            Manejá profesores externos, contratos por porcentaje, alquileres de espacio o sueldos fijos. Todo integrado con el control de asistencia para liquidar horas trabajadas automáticamente.
+          </p>
+        </div>
+      </section>
 
+      {/* 06 — SISTEMA POS */}
+      <section className="py-24 max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <div className="font-mono text-xs uppercase tracking-widest text-blue-500 mb-4"></div>
+          <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
+            Tienda, Stock y Facturación <span className="text-blue-500">en un solo clic.</span>
+          </h2>
+          <p className="text-lg text-neutral-400 mb-8 leading-relaxed">
+            No necesitas programas extra. Vendé suplementos, indumentaria o servicios extras. Control de stock en tiempo real, lector de códigos de barras y cierre de caja automatizado.
+          </p>
+        </div>
+        <div>
+           <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-600" />
+            <h3 className="text-xl font-black mb-6">Cierre de Caja</h3>
+            <div className="space-y-4 font-mono text-sm">
+                <div className="flex justify-between border-b border-neutral-800 pb-2"><span>Total Ventas</span><span className="text-blue-400 font-bold">$250.000</span></div>
+                <div className="flex justify-between border-b border-neutral-800 pb-2"><span>Efectivo</span><span className="text-white">$120.000</span></div>
+                <div className="flex justify-between border-b border-neutral-800 pb-2"><span>Mercado Pago</span><span className="text-white">$130.000</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
       {/* COMPARATIVA DE COSTOS: SUSCRIPCIÓN MENSUAL */}
       <section id="comparativa" className="py-24 bg-neutral-900/10 border-y border-neutral-900 max-w-7xl mx-auto px-6">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="font-mono text-xs uppercase tracking-widest text-orange-500 mb-4">// 05 — El Modelo Inteligente</div>
+          <div className="font-mono text-xs uppercase tracking-widest text-orange-500 mb-4"></div>
           <h2 className="text-4xl font-black tracking-tight mb-4">Evitá costos ocultos y escalá seguro.</h2>
           <p className="text-neutral-400 text-lg">Un modelo de suscripción predecible. Olvidate de compras de software carísimas y actualizaciones sorpresa.</p>
         </div>
@@ -485,7 +576,7 @@ export default function App() {
       {/* PREGUNTAS FRECUENTES (FAQS) */}
       <section id="faqs" className="py-24 max-w-4xl mx-auto px-6">
         <div className="text-center mb-16">
-          <div className="font-mono text-xs uppercase tracking-widest text-orange-500 mb-4">// 06 — FAQ</div>
+          <div className="font-mono text-xs uppercase tracking-widest text-orange-500 mb-4"></div>
           <h2 className="text-4xl font-black tracking-tight">Preguntas Frecuentes</h2>
         </div>
         <div className="space-y-4">
@@ -511,20 +602,85 @@ export default function App() {
         </div>
       </section>
 
-      {/* CTA FINAL AGRESIVO */}
-      <section className="py-32 relative text-center border-t border-orange-500/20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-orange-600/10 via-neutral-950 to-neutral-950" />
-        <div className="relative max-w-4xl mx-auto px-6">
-          <h2 className="text-5xl md:text-7xl font-black mb-6 leading-tight tracking-tight">
-            Dejá de operar un gimnasio.<br/>
-            <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">Empezá a dirigir una empresa.</span>
-          </h2>
-          <p className="text-xl text-neutral-400 mb-12 max-w-2xl mx-auto font-medium">
-            El 90% de los dueños son esclavos de su recepción. El 10% usa FitSuite Pro. Iniciá tu prueba sin costo hoy.
-          </p>
-          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="group relative inline-flex items-center justify-center h-16 px-12 rounded-full bg-white text-black font-black text-xl overflow-hidden shadow-[0_0_50px_rgba(255,255,255,0.15)] hover:scale-105 transition-all duration-300">
-             Reclamar mis 30 Días Gratis <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
-          </a>
+      {/* 🔥 NUEVO: FORMULARIO DE REUNIÓN / DIAGNÓSTICO (LEAD GEN) 🔥 */}
+      <section id="reunion" className="py-32 relative border-t border-orange-500/20 bg-neutral-950">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-orange-900/10 via-neutral-950 to-neutral-950" />
+        <div className="relative max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+          
+          {/* Copy agresivo de Ventas */}
+          <div>
+            <h2 className="text-5xl md:text-6xl font-black mb-6 leading-tight tracking-tight">
+              Tu gimnasio está perdiendo plata.<br/>
+              <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">Averigüemos dónde.</span>
+            </h2>
+            <p className="text-xl text-neutral-400 mb-8 font-medium">
+              Contanos cuál es tu mayor cuello de botella operativo y te demostramos en vivo cómo FitSuite Pro lo automatiza.
+            </p>
+            <ul className="space-y-3 mb-8">
+              <li className="flex items-center gap-3 text-neutral-300 font-medium">
+                <CheckCircle2 className="h-5 w-5 text-orange-500" /> Instalación y configuración guiada.
+              </li>
+              <li className="flex items-center gap-3 text-neutral-300 font-medium">
+                <CheckCircle2 className="h-5 w-5 text-orange-500" /> 30 días de prueba 100% bonificados.
+              </li>
+              <li className="flex items-center gap-3 text-neutral-300 font-medium">
+                <CheckCircle2 className="h-5 w-5 text-orange-500" /> Demo enfocada en tu problema real.
+              </li>
+            </ul>
+          </div>
+
+          {/* Formulario que dispara a WhatsApp */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-orange-500 to-red-600" />
+            <h3 className="text-2xl font-black mb-6">Agendar Demostración</h3>
+            
+            <form onSubmit={handleFormSubmit} className="space-y-5">
+              <div>
+                <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wide mb-2">Tu Nombre</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="Ej: Marcos Pérez"
+                  value={formData.nombre}
+                  onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wide mb-2">Nombre de tu Gimnasio</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="Ej: Titan Fitness Center"
+                  value={formData.gym}
+                  onChange={(e) => setFormData({...formData, gym: e.target.value})}
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wide mb-2">¿Cuál es tu mayor dolor de cabeza hoy?</label>
+                <textarea 
+                  required
+                  rows={3}
+                  placeholder="Ej: Cobrarle a los socios morosos a tiempo..."
+                  value={formData.dolor}
+                  onChange={(e) => setFormData({...formData, dolor: e.target.value})}
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all resize-none"
+                />
+              </div>
+
+              <button 
+                type="submit"
+                className="w-full group relative inline-flex items-center justify-center gap-2 h-14 px-8 rounded-xl bg-orange-600 text-white font-black text-lg overflow-hidden hover:bg-orange-500 transition-all duration-300 shadow-[0_0_20px_rgba(234,88,12,0.3)] hover:shadow-[0_0_30px_rgba(234,88,12,0.5)]"
+              >
+                <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                Agendar y Resolver
+              </button>
+            </form>
+          </div>
+
         </div>
       </section>
 
@@ -547,7 +703,7 @@ export default function App() {
             <ul className="space-y-3 text-sm text-neutral-400 font-medium">
               <li className="flex items-center gap-3 hover:text-orange-400 transition-colors">
                 <MessageCircle className="h-4 w-4 text-neutral-600" />
-                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">Atención Comercial ↗</a>
+                <a href={WHATSAPP_URL_GENERAL} target="_blank" rel="noopener noreferrer">Atención Comercial ↗</a>
               </li>
               <li className="flex items-center gap-3 hover:text-orange-400 transition-colors">
                 <Mail className="h-4 w-4 text-neutral-600" />
@@ -565,7 +721,6 @@ export default function App() {
         </div>
         <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-neutral-900 flex flex-col md:flex-row justify-between gap-4 text-xs text-neutral-600 font-mono font-medium">
           <span>© {new Date().getFullYear()} tresbits010. Elevando el estándar del Fitness. Todos los derechos reservados.</span>
-          
         </div>
       </footer>
     </main>
