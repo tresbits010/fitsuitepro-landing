@@ -15,13 +15,13 @@ import {
   ChevronDown,
   HelpCircle,
   Flame,
-  
+  Smartphone,
   TrendingUp,
   Activity,
   Bot,
   Star,
   Clock,
- 
+  Target,
   Wrench,
   Send
 } from "lucide-react";
