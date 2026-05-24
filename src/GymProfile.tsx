@@ -7,9 +7,8 @@ export default function GymProfile() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // El Worker ahora hace el trabajo sucio: 
-    // recibe "nicheas", busca el mapeo y devuelve los datos correctos
-    fetch(`https://rescate-gym-offline.tresbits010.workers.dev/api/get/`)
+    // 🔥 ACÁ ESTÁ EL CAMBIO: Agregamos ${gymSlug} al final de la URL
+    fetch(`https://rescate-gym-offline.tresbits010.workers.dev/api/get/${gymSlug}`)
       .then(res => res.json())
       .then(json => {
         setData(json);
@@ -69,9 +68,10 @@ export default function GymProfile() {
             </a>
           )}
 
+          {/* 🔥 ACÁ ESTÁ EL OTRO CAMBIO: Agregué el ?q= en el link de Maps para que busque bien la dirección */}
           {data.direccion && (
             <a 
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.direccion)}`}
+              href={`https://maps.google.com/?q=${encodeURIComponent(data.direccion)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="block w-full text-center bg-neutral-800 border border-neutral-700 py-4 rounded-xl font-bold hover:bg-neutral-700 transition-all"
