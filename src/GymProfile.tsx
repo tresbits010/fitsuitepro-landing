@@ -1,13 +1,42 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import {
+  Dumbbell,
+  Flame,
+  Music2,
+  HeartPulse,
+  Check,
+  MapPin,
+  Instagram,
+  Clock,
+  Menu,
+  X,
+  MessageCircle,
+} from "lucide-react";
+
+const claseIcono = (nombre: string) => {
+  const n = nombre.toLowerCase();
+  if (n.includes("cross")) return Flame;
+  if (n.includes("zumba")) return Music2;
+  if (n.includes("yoga") || n.includes("pilates")) return HeartPulse;
+  return Dumbbell;
+};
+
+const navLinks = [
+  { href: "#inicio", label: "Inicio" },
+  { href: "#nosotros", label: "Nosotros" },
+  { href: "#clases", label: "Clases" },
+  { href: "#planes", label: "Planes" },
+  { href: "#contacto", label: "Contacto" },
+];
 
 export default function GymProfile() {
-  const { gymSlug } = useParams(); // Ahora gymSlug es el subdominio (ej: "nicheas")
+  const { gymSlug } = useParams();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    // 🔥 ACÁ ESTÁ EL CAMBIO: Agregamos ${gymSlug} al final de la URL
     fetch(`https://rescate-gym-offline.tresbits010.workers.dev/api/get/${gymSlug}`)
       .then(res => res.json())
       .then(json => {
@@ -32,66 +61,316 @@ export default function GymProfile() {
     </div>
   );
 
-  return (
-    <div className="min-h-screen bg-neutral-950 text-white p-6 md:p-10">
-      <div className="max-w-2xl mx-auto bg-neutral-900 border border-neutral-800 p-8 rounded-3xl shadow-2xl">
-        
-        {/* Cabecera */}
-        <h1 className="text-4xl md:text-5xl font-black text-orange-500 mb-4">{data.nombre}</h1>
-        
-        {/* Historia / Descripción */}
-        <p className="text-neutral-400 mb-8 leading-relaxed italic">
-          {data.historia || "Bienvenidos a nuestro centro de entrenamiento. Estamos comprometidos con tu progreso y bienestar."}
-        </p>
+  // --- FALLBACKS ---
+  // Rellenamos lo que todavía no viene de C# para que la web se vea completa
+  const logoUrl = data.logo_url || "https://placehold.co/150x150/111/f97316?text=Logo";
+  const bannerUrl = data.banner_url || "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop";
+  const historia = data.historia || "Bienvenidos a nuestro centro de entrenamiento. Estamos comprometidos con tu progreso y bienestar físico y mental.";
+  
+  const clasesData = data.clases?.length > 0 ? data.clases : [
+    { nombre: "Crossfit", horario: "18:00 - 19:00", profe: "Miguel" },
+    { nombre: "Zumba", horario: "19:00 - 20:00", profe: "Ana" },
+  ];
+  
+  const planesData = data.planes?.length > 0 ? data.planes : [
+    { nombre: "Pase Libre Diario", precio: "$15.000", beneficios: ["Musculación libre", "Duchas"] },
+    { nombre: "Premium Mensual", precio: "$25.000", beneficios: ["Musculación", "Todas las clases", "Nutrición"] },
+  ];
 
-        {/* Info Box */}
-        <div className="grid gap-4 mb-8">
-          <div className="p-4 bg-neutral-800/50 rounded-xl border border-neutral-700 flex items-center gap-3">
-            <span className="text-orange-500 text-xl">🕒</span>
-            <div>
-              <p className="text-[10px] text-neutral-500 uppercase font-bold tracking-widest">Horarios</p>
-              <p className="text-sm font-medium">{data.horario || "Consultar en recepción"}</p>
+  // Links limpios
+  const waLink = data.whatsapp ? `https://wa.me/${data.whatsapp.replace(/\D/g, '')}` : "#";
+  const mapLink = data.direccion ? `http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(data.direccion)}` : "#";
+  const igLink = data.instagram ? `https://instagram.com/${data.instagram.replace("@", "")}` : "#";
+
+  return (
+    <main className="min-h-screen bg-neutral-950 text-white scroll-smooth">
+      {/* NAV */}
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-neutral-800/60 bg-neutral-950/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+          <a href="#inicio" className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-orange-500 shadow-[0_0_12px_#f97316]" />
+            <span className="text-sm font-black uppercase tracking-widest text-white">
+              {data.nombre}
+            </span>
+          </a>
+          <nav className="hidden md:flex items-center gap-8">
+            {navLinks.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="text-sm font-semibold text-neutral-400 transition hover:text-orange-500"
+              >
+                {l.label}
+              </a>
+            ))}
+          </nav>
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="md:hidden rounded-md p-2 text-white hover:bg-neutral-800"
+            aria-label="Menú"
+          >
+            {open ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
+        {open && (
+          <nav className="md:hidden border-t border-neutral-800/60 bg-neutral-950">
+            <div className="mx-auto flex max-w-6xl flex-col px-5 py-3">
+              {navLinks.map((l) => (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className="py-3 text-base font-semibold text-neutral-400 hover:text-orange-500"
+                >
+                  {l.label}
+                </a>
+              ))}
             </div>
+          </nav>
+        )}
+      </header>
+
+      {/* HERO */}
+      <section
+        id="inicio"
+        className="relative flex min-h-[100svh] items-center justify-center overflow-hidden pt-16"
+      >
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${bannerUrl})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-neutral-950/80 via-neutral-950/70 to-neutral-950" />
+        <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-6 py-20 text-center">
+          <img
+            src={logoUrl}
+            alt={`${data.nombre} logo`}
+            className="h-24 w-24 rounded-full border-2 border-orange-500 shadow-[0_0_40px_-5px_#f97316] md:h-32 md:w-32 object-cover"
+          />
+          <span className="mt-6 text-xs font-bold uppercase tracking-[0.4em] text-orange-500">
+            Entrená sin excusas
+          </span>
+          <h1 className="mt-4 text-5xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl md:text-8xl">
+            {data.nombre}
+          </h1>
+          <p className="mt-6 max-w-xl text-base italic text-neutral-400 md:text-lg">
+            Tu fuerza, tu ritmo, tu transformación. Forjá la mejor versión de vos.
+          </p>
+          <a
+            href="#contacto"
+            className="mt-10 inline-flex items-center gap-3 rounded-full bg-orange-500 px-10 py-4 text-base font-black uppercase tracking-wider text-white shadow-[0_0_30px_-5px_#f97316] transition hover:scale-105 hover:shadow-[0_0_45px_-5px_#f97316]"
+          >
+            <Flame size={20} />
+            Comenzar ahora
+          </a>
+        </div>
+      </section>
+
+      {/* NOSOTROS */}
+      <section id="nosotros" className="border-t border-neutral-800/60 px-6 py-24">
+        <div className="mx-auto max-w-4xl text-center">
+          <span className="text-xs font-bold uppercase tracking-[0.4em] text-orange-500">
+            Sobre nosotros
+          </span>
+          <h2 className="mt-4 text-4xl font-black uppercase tracking-tight md:text-6xl">
+            Más que un <span className="text-orange-500">gimnasio</span>
+          </h2>
+          <p className="mt-8 text-lg italic leading-relaxed text-neutral-400 md:text-xl">
+            “{historia}”
+          </p>
+        </div>
+      </section>
+
+      {/* CLASES */}
+      <section
+        id="clases"
+        className="border-t border-neutral-800/60 bg-neutral-900/40 px-6 py-24"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center">
+            <span className="text-xs font-bold uppercase tracking-[0.4em] text-orange-500">
+              Disciplinas
+            </span>
+            <h2 className="mt-4 text-4xl font-black uppercase tracking-tight md:text-6xl">
+              Nuestras Clases
+            </h2>
+            <p className="mt-3 italic text-neutral-400">
+              Encontrá la que te haga sudar.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {clasesData.map((c: any) => {
+              const Icon = claseIcono(c.nombre);
+              return (
+                <article
+                  key={c.nombre}
+                  className="group relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 p-7 transition hover:border-orange-500 hover:-translate-y-1"
+                >
+                  <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-orange-500/10 blur-3xl transition group-hover:bg-orange-500/20" />
+                  <div className="relative">
+                    <div className="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500">
+                      <Icon size={28} />
+                    </div>
+                    <h3 className="mt-6 text-2xl font-black uppercase">
+                      {c.nombre}
+                    </h3>
+                    <div className="mt-4 flex items-center gap-2 text-sm text-neutral-400">
+                      <Clock size={14} className="text-orange-500" />
+                      <span>{c.horario}</span>
+                    </div>
+                    <p className="mt-2 text-sm italic text-neutral-400">
+                      con <span className="text-white">{c.profe}</span>
+                    </p>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
+      </section>
 
-        {/* Botones de acción */}
-        <div className="flex flex-col gap-3">
-          {data.whatsapp && (
-            <a 
-              href={`https://wa.me/${data.whatsapp.replace(/\D/g, '')}`} 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full text-center bg-green-600 py-4 rounded-xl font-bold hover:bg-green-700 transition-all shadow-lg shadow-green-900/20"
-            >
-              Contactar por WhatsApp
-            </a>
-          )}
+      {/* PLANES */}
+      <section id="planes" className="border-t border-neutral-800/60 px-6 py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center">
+            <span className="text-xs font-bold uppercase tracking-[0.4em] text-orange-500">
+              Membresías
+            </span>
+            <h2 className="mt-4 text-4xl font-black uppercase tracking-tight md:text-6xl">
+              Planes y Precios
+            </h2>
+            <p className="mt-3 italic text-neutral-400">
+              Elegí el que mejor se adapte a tu ritmo.
+            </p>
+          </div>
 
-          {/* 🔥 ACÁ ESTÁ EL OTRO CAMBIO: Agregué el ?q= en el link de Maps para que busque bien la dirección */}
-          {data.direccion && (
-            <a 
-              href={`https://maps.google.com/?q=${encodeURIComponent(data.direccion)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full text-center bg-neutral-800 border border-neutral-700 py-4 rounded-xl font-bold hover:bg-neutral-700 transition-all"
-            >
-              Ver ubicación
-            </a>
-          )}
-          
-          {data.instagram && (
-            <a 
-              href={`https://instagram.com/${data.instagram.replace('@', '')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full text-center text-sm text-neutral-500 hover:text-orange-500 transition-colors mt-2"
-            >
-              Seguinos en Instagram
-            </a>
-          )}
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {planesData.map((p: any, i: number) => {
+              const featured = i === planesData.length - 1;
+              return (
+                <article
+                  key={p.nombre}
+                  className={`relative flex flex-col rounded-2xl border p-8 transition hover:-translate-y-1 ${
+                    featured
+                      ? "border-orange-500 bg-neutral-900 shadow-[0_0_60px_-20px_#f97316]"
+                      : "border-neutral-800 bg-neutral-900/60 hover:border-orange-500/60"
+                  }`}
+                >
+                  {featured && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-500 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                      Más elegido
+                    </span>
+                  )}
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-400">
+                    {p.nombre}
+                  </h3>
+                  <div className="mt-4 flex items-baseline gap-1">
+                    <span className="text-5xl font-black tracking-tight">
+                      {p.precio}
+                    </span>
+                  </div>
+                  <ul className="mt-8 space-y-3 flex-1">
+                    {p.beneficios.map((b: string) => (
+                      <li
+                        key={b}
+                        className="flex items-center gap-3 text-sm text-neutral-400"
+                      >
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-500/15 text-orange-500">
+                          <Check size={12} strokeWidth={3} />
+                        </span>
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                  <a
+                    href={data.whatsapp ? `https://wa.me/${data.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola! Quiero info del plan ${p.nombre}`)}` : "#"}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`mt-10 flex items-center justify-center rounded-xl px-5 py-3 text-sm font-black uppercase tracking-wider transition ${
+                      featured
+                        ? "bg-orange-500 text-white hover:brightness-110"
+                        : "border border-neutral-800 bg-neutral-800 text-white hover:border-orange-500 hover:text-orange-500"
+                    }`}
+                  >
+                    Lo quiero
+                  </a>
+                </article>
+              );
+            })}
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+
+      {/* CONTACTO */}
+      <section
+        id="contacto"
+        className="border-t border-neutral-800/60 bg-neutral-900/40 px-6 py-24"
+      >
+        <div className="mx-auto max-w-4xl text-center">
+          <span className="text-xs font-bold uppercase tracking-[0.4em] text-orange-500">
+            Contacto
+          </span>
+          <h2 className="mt-4 text-4xl font-black uppercase tracking-tight md:text-6xl">
+            Vení a entrenar
+          </h2>
+
+          <div className="mx-auto mt-10 inline-flex flex-col items-center gap-2 rounded-2xl border border-neutral-800 bg-neutral-900 px-8 py-6">
+            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-orange-500">
+              <Clock size={16} /> Horarios
+            </div>
+            <p className="text-base italic text-neutral-400 md:text-lg">
+              {data.horario || "Consultar horarios"}
+            </p>
+          </div>
+
+          <div className="mt-10 flex flex-col gap-4">
+            {data.whatsapp && (
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noreferrer"
+                className="group inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-green-600 px-8 py-6 text-lg font-black uppercase tracking-wider text-white shadow-[0_0_40px_-10px_#16a34a] transition hover:scale-[1.02] hover:shadow-[0_0_60px_-10px_#16a34a] md:text-xl"
+              >
+                <MessageCircle size={26} className="transition group-hover:rotate-12" />
+                Escribinos por WhatsApp
+              </a>
+            )}
+            
+            {data.direccion && (
+              <a
+                href={mapLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-neutral-800 bg-neutral-800 px-8 py-4 text-sm font-black uppercase tracking-wider text-white transition hover:border-orange-500 hover:text-orange-500"
+              >
+                <MapPin size={18} />
+                Ver ubicación
+              </a>
+            )}
+          </div>
+
+          <div className="mt-12 flex flex-col items-center gap-3 text-sm text-neutral-400">
+            {data.direccion && <p className="italic">{data.direccion}</p>}
+            {data.instagram && (
+              <a
+                href={igLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 font-semibold transition hover:text-orange-500"
+              >
+                <Instagram size={16} />
+                {data.instagram}
+              </a>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-neutral-800/60 px-6 py-8 text-center">
+        <p className="text-xs uppercase tracking-widest text-neutral-400">
+          © {new Date().getFullYear()} {data.nombre} — Forjá tu fuerza.
+        </p>
+      </footer>
+    </main>
   );
 }
