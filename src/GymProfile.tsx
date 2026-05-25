@@ -218,14 +218,14 @@ export default function GymProfile() {
           <img
             src={logoUrl}
             alt={`${data.nombre} logo`}
-            className="h-128 w-128 md:h-48 md:w-48 rounded-full border-2 object-cover"
+            className="h-96 w-96 md:h-96 md:w-96 rounded-full border-4 object-cover"
             style={{ borderColor: 'var(--primary-color)', boxShadow: '0 0 40px -5px var(--glow-color)' }}
           />
           <span className="mt-6 text-xs font-bold uppercase tracking-[0.4em]" style={{ color: 'var(--primary-color)' }}>
             Entrená sin excusas
           </span>
           <h1 className="mt-4 text-5xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl md:text-8xl">
-            {data.nombre}
+            {data.nombre} 
           </h1>
           <p className="mt-6 max-w-xl text-base italic text-neutral-400 md:text-lg">
             Tu fuerza, tu ritmo, tu transformación. Forjá la mejor versión de vos.
@@ -332,11 +332,9 @@ export default function GymProfile() {
       <section id="planes" className="border-t border-neutral-800/60 px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <span className="text-xs font-bold uppercase tracking-[0.4em]" style={{ color: 'var(--primary-color)' }}>
-              Membresías
-            </span>
+          
             <h2 className="mt-4 text-4xl font-black uppercase tracking-tight md:text-6xl">
-              Planes y Precios
+              Planes y Precios <span style={{ color: 'var(--primary-color)' }}>Vigentes</span>
             </h2>
             <p className="mt-3 italic text-neutral-400">
               Elegí el que mejor se adapte a tu ritmo.
@@ -344,8 +342,8 @@ export default function GymProfile() {
           </div>
 
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {planesData.map((p: any, i: number) => {
-              const featured = i === planesData.length - 1;
+            {planesData.map((p: any) => {
+              const featured = p.es_destacado === true;
               return (
                 <article
                   key={p.nombre}
