@@ -218,7 +218,7 @@ export default function GymProfile() {
           <img
             src={logoUrl}
             alt={`${data.nombre} logo`}
-            className="h-254 w-254 md:h-48 md:w-48 rounded-full border-2 object-cover"
+            className="h-128 w-128 md:h-48 md:w-48 rounded-full border-2 object-cover"
             style={{ borderColor: 'var(--primary-color)', boxShadow: '0 0 40px -5px var(--glow-color)' }}
           />
           <span className="mt-6 text-xs font-bold uppercase tracking-[0.4em]" style={{ color: 'var(--primary-color)' }}>
