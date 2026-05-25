@@ -94,25 +94,29 @@ export default function GymProfile() {
   ];
 
   // 🔥 AGRUPACIÓN INTELIGENTE DE CLASES 🔥
+  // 🔥 AGRUPACIÓN INTELIGENTE CON PROTECCIÓN 🔥
   const clasesAgrupadas = Object.values(
     clasesData.reduce((acc: any, curr: any) => {
+      // Si el objeto no tiene nombre, lo saltamos para evitar errores
+      if (!curr.nombre) return acc; 
+      
       const key = `${curr.nombre}-${curr.profe}`;
       
       if (!acc[key]) {
         acc[key] = {
           nombre: curr.nombre,
           profe: curr.profe,
-          schedules: {} // Mapeo: "Horario" -> Set de Días
+          schedules: {} 
         };
       }
       
-      const horario = curr.horario;
+      const horario = curr.horario || "Horario no definido";
+      const dia = curr.dia !== undefined ? curr.dia : 0; // Fallback a Domingo si falta el día
+
       if (!acc[key].schedules[horario]) {
         acc[key].schedules[horario] = new Set();
       }
-      
-      // Si `curr.dia` no viene, asumimos "0" para que no rompa
-      acc[key].schedules[horario].add(curr.dia ?? 0);
+      acc[key].schedules[horario].add(dia);
       return acc;
     }, {})
   ).map((c: any) => {
