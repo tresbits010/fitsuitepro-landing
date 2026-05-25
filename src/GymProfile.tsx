@@ -7,7 +7,6 @@ import {
   HeartPulse,
   Check,
   MapPin,
-  Instagram,
   Clock,
   Menu,
   X,
@@ -31,6 +30,26 @@ const navLinks = [
 ];
 
 export default function GymProfile() {
+  // Ícono de Instagram manual para evitar el error de lucide-react
+  const InstagramIcon = ({ size = 16, className = "" }) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+  
   const { gymSlug } = useParams();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -51,7 +70,7 @@ export default function GymProfile() {
 
   if (loading) return (
     <div className="min-h-screen bg-neutral-950 text-white flex items-center justify-center">
-      <div className="animate-pulse text-orange-500 font-bold text-xl">Cargando info...</div>
+      <div className="animate-pulse font-bold text-xl" style={{ color: '#f97316' }}>Cargando info...</div>
     </div>
   );
 
@@ -62,7 +81,6 @@ export default function GymProfile() {
   );
 
   // --- FALLBACKS ---
-  // Rellenamos lo que todavía no viene de C# para que la web se vea completa
   const logoUrl = data.logo_url || "https://placehold.co/150x150/111/f97316?text=Logo";
   const bannerUrl = data.banner_url || "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop";
   const historia = data.historia || "Bienvenidos a nuestro centro de entrenamiento. Estamos comprometidos con tu progreso y bienestar físico y mental.";
@@ -82,13 +100,20 @@ export default function GymProfile() {
   const mapLink = data.direccion ? `http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(data.direccion)}` : "#";
   const igLink = data.instagram ? `https://instagram.com/${data.instagram.replace("@", "")}` : "#";
 
+  // 🔥 VARIABLES CSS DINÁMICAS BASADAS EN C# 🔥
+  const themeStyle = {
+    '--primary-color': data.color_tema || '#f97316',
+    '--glow-color': data.glow_tema || '#f97316'
+  } as React.CSSProperties;
+
   return (
-    <main className="min-h-screen bg-neutral-950 text-white scroll-smooth">
+    <main style={themeStyle} className="min-h-screen bg-neutral-950 text-white scroll-smooth">
       {/* NAV */}
       <header className="fixed inset-x-0 top-0 z-50 border-b border-neutral-800/60 bg-neutral-950/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <a href="#inicio" className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-orange-500 shadow-[0_0_12px_#f97316]" />
+            {/* Globo estilo neón */}
+            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--primary-color)', boxShadow: '0 0 12px var(--glow-color)' }} />
             <span className="text-sm font-black uppercase tracking-widest text-white">
               {data.nombre}
             </span>
@@ -98,7 +123,10 @@ export default function GymProfile() {
               <a
                 key={l.href}
                 href={l.href}
-                className="text-sm font-semibold text-neutral-400 transition hover:text-orange-500"
+                className="text-sm font-semibold text-neutral-400 transition hover:text-white"
+                style={{ transition: 'color 0.3s' }}
+                onMouseOver={(e) => (e.currentTarget.style.color = data.color_tema || '#f97316')}
+                onMouseOut={(e) => (e.currentTarget.style.color = '#9ca3af')} // neutral-400
               >
                 {l.label}
               </a>
@@ -120,7 +148,9 @@ export default function GymProfile() {
                   key={l.href}
                   href={l.href}
                   onClick={() => setOpen(false)}
-                  className="py-3 text-base font-semibold text-neutral-400 hover:text-orange-500"
+                  className="py-3 text-base font-semibold text-neutral-400 transition"
+                  onMouseOver={(e) => (e.currentTarget.style.color = data.color_tema || '#f97316')}
+                  onMouseOut={(e) => (e.currentTarget.style.color = '#9ca3af')}
                 >
                   {l.label}
                 </a>
@@ -144,9 +174,10 @@ export default function GymProfile() {
           <img
             src={logoUrl}
             alt={`${data.nombre} logo`}
-            className="h-24 w-24 rounded-full border-2 border-orange-500 shadow-[0_0_40px_-5px_#f97316] md:h-32 md:w-32 object-cover"
+            className="h-32 w-32 md:h-48 md:w-48 rounded-full border-2 object-cover"
+            style={{ borderColor: 'var(--primary-color)', boxShadow: '0 0 40px -5px var(--glow-color)' }}
           />
-          <span className="mt-6 text-xs font-bold uppercase tracking-[0.4em] text-orange-500">
+          <span className="mt-6 text-xs font-bold uppercase tracking-[0.4em]" style={{ color: 'var(--primary-color)' }}>
             Entrená sin excusas
           </span>
           <h1 className="mt-4 text-5xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl md:text-8xl">
@@ -157,7 +188,8 @@ export default function GymProfile() {
           </p>
           <a
             href="#contacto"
-            className="mt-10 inline-flex items-center gap-3 rounded-full bg-orange-500 px-10 py-4 text-base font-black uppercase tracking-wider text-white shadow-[0_0_30px_-5px_#f97316] transition hover:scale-105 hover:shadow-[0_0_45px_-5px_#f97316]"
+            className="mt-10 inline-flex items-center gap-3 rounded-full px-10 py-4 text-base font-black uppercase tracking-wider text-white transition hover:scale-105"
+            style={{ backgroundColor: 'var(--primary-color)', boxShadow: '0 0 30px -5px var(--glow-color)' }}
           >
             <Flame size={20} />
             Comenzar ahora
@@ -168,11 +200,11 @@ export default function GymProfile() {
       {/* NOSOTROS */}
       <section id="nosotros" className="border-t border-neutral-800/60 px-6 py-24">
         <div className="mx-auto max-w-4xl text-center">
-          <span className="text-xs font-bold uppercase tracking-[0.4em] text-orange-500">
+          <span className="text-xs font-bold uppercase tracking-[0.4em]" style={{ color: 'var(--primary-color)' }}>
             Sobre nosotros
           </span>
           <h2 className="mt-4 text-4xl font-black uppercase tracking-tight md:text-6xl">
-            Más que un <span className="text-orange-500">gimnasio</span>
+            Más que un <span style={{ color: 'var(--primary-color)' }}>gimnasio</span>
           </h2>
           <p className="mt-8 text-lg italic leading-relaxed text-neutral-400 md:text-xl">
             “{historia}”
@@ -187,7 +219,7 @@ export default function GymProfile() {
       >
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <span className="text-xs font-bold uppercase tracking-[0.4em] text-orange-500">
+            <span className="text-xs font-bold uppercase tracking-[0.4em]" style={{ color: 'var(--primary-color)' }}>
               Disciplinas
             </span>
             <h2 className="mt-4 text-4xl font-black uppercase tracking-tight md:text-6xl">
@@ -204,18 +236,21 @@ export default function GymProfile() {
               return (
                 <article
                   key={c.nombre}
-                  className="group relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 p-7 transition hover:border-orange-500 hover:-translate-y-1"
+                  className="group relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 p-7 transition hover:-translate-y-1"
+                  style={{ transition: 'all 0.3s' }}
+                  onMouseOver={(e) => (e.currentTarget.style.borderColor = data.color_tema || '#f97316')}
+                  onMouseOut={(e) => (e.currentTarget.style.borderColor = '#262626')} // neutral-800
                 >
-                  <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-orange-500/10 blur-3xl transition group-hover:bg-orange-500/20" />
+                  <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full blur-3xl transition opacity-10 group-hover:opacity-20" style={{ backgroundColor: 'var(--primary-color)' }} />
                   <div className="relative">
-                    <div className="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500">
+                    <div className="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-neutral-800" style={{ color: 'var(--primary-color)' }}>
                       <Icon size={28} />
                     </div>
                     <h3 className="mt-6 text-2xl font-black uppercase">
                       {c.nombre}
                     </h3>
                     <div className="mt-4 flex items-center gap-2 text-sm text-neutral-400">
-                      <Clock size={14} className="text-orange-500" />
+                      <Clock size={14} style={{ color: 'var(--primary-color)' }} />
                       <span>{c.horario}</span>
                     </div>
                     <p className="mt-2 text-sm italic text-neutral-400">
@@ -233,7 +268,7 @@ export default function GymProfile() {
       <section id="planes" className="border-t border-neutral-800/60 px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <span className="text-xs font-bold uppercase tracking-[0.4em] text-orange-500">
+            <span className="text-xs font-bold uppercase tracking-[0.4em]" style={{ color: 'var(--primary-color)' }}>
               Membresías
             </span>
             <h2 className="mt-4 text-4xl font-black uppercase tracking-tight md:text-6xl">
@@ -250,14 +285,15 @@ export default function GymProfile() {
               return (
                 <article
                   key={p.nombre}
-                  className={`relative flex flex-col rounded-2xl border p-8 transition hover:-translate-y-1 ${
-                    featured
-                      ? "border-orange-500 bg-neutral-900 shadow-[0_0_60px_-20px_#f97316]"
-                      : "border-neutral-800 bg-neutral-900/60 hover:border-orange-500/60"
-                  }`}
+                  className={`relative flex flex-col rounded-2xl border p-8 transition hover:-translate-y-1`}
+                  style={{
+                    borderColor: featured ? 'var(--primary-color)' : '#262626',
+                    backgroundColor: featured ? '#171717' : 'rgba(23, 23, 23, 0.6)',
+                    boxShadow: featured ? '0 0 60px -20px var(--glow-color)' : 'none'
+                  }}
                 >
                   {featured && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-500 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-[10px] font-black uppercase tracking-widest text-white" style={{ backgroundColor: 'var(--primary-color)' }}>
                       Más elegido
                     </span>
                   )}
@@ -275,7 +311,7 @@ export default function GymProfile() {
                         key={b}
                         className="flex items-center gap-3 text-sm text-neutral-400"
                       >
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-500/15 text-orange-500">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-800" style={{ color: 'var(--primary-color)' }}>
                           <Check size={12} strokeWidth={3} />
                         </span>
                         {b}
@@ -286,11 +322,24 @@ export default function GymProfile() {
                     href={data.whatsapp ? `https://wa.me/${data.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola! Quiero info del plan ${p.nombre}`)}` : "#"}
                     target="_blank"
                     rel="noreferrer"
-                    className={`mt-10 flex items-center justify-center rounded-xl px-5 py-3 text-sm font-black uppercase tracking-wider transition ${
-                      featured
-                        ? "bg-orange-500 text-white hover:brightness-110"
-                        : "border border-neutral-800 bg-neutral-800 text-white hover:border-orange-500 hover:text-orange-500"
-                    }`}
+                    className="mt-10 flex items-center justify-center rounded-xl px-5 py-3 text-sm font-black uppercase tracking-wider transition"
+                    style={{
+                      backgroundColor: featured ? 'var(--primary-color)' : '#262626',
+                      color: featured ? 'white' : '#d4d4d8',
+                      border: featured ? 'none' : '1px solid #3f3f46'
+                    }}
+                    onMouseOver={(e) => {
+                      if (!featured) {
+                        e.currentTarget.style.borderColor = data.color_tema || '#f97316';
+                        e.currentTarget.style.color = data.color_tema || '#f97316';
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      if (!featured) {
+                        e.currentTarget.style.borderColor = '#3f3f46';
+                        e.currentTarget.style.color = '#d4d4d8';
+                      }
+                    }}
                   >
                     Lo quiero
                   </a>
@@ -307,7 +356,7 @@ export default function GymProfile() {
         className="border-t border-neutral-800/60 bg-neutral-900/40 px-6 py-24"
       >
         <div className="mx-auto max-w-4xl text-center">
-          <span className="text-xs font-bold uppercase tracking-[0.4em] text-orange-500">
+          <span className="text-xs font-bold uppercase tracking-[0.4em]" style={{ color: 'var(--primary-color)' }}>
             Contacto
           </span>
           <h2 className="mt-4 text-4xl font-black uppercase tracking-tight md:text-6xl">
@@ -315,7 +364,7 @@ export default function GymProfile() {
           </h2>
 
           <div className="mx-auto mt-10 inline-flex flex-col items-center gap-2 rounded-2xl border border-neutral-800 bg-neutral-900 px-8 py-6">
-            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-orange-500">
+            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest" style={{ color: 'var(--primary-color)' }}>
               <Clock size={16} /> Horarios
             </div>
             <p className="text-base italic text-neutral-400 md:text-lg">
@@ -341,7 +390,15 @@ export default function GymProfile() {
                 href={mapLink}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-neutral-800 bg-neutral-800 px-8 py-4 text-sm font-black uppercase tracking-wider text-white transition hover:border-orange-500 hover:text-orange-500"
+                className="inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-neutral-800 bg-neutral-800 px-8 py-4 text-sm font-black uppercase tracking-wider text-white transition"
+                onMouseOver={(e) => {
+                  e.currentTarget.style.borderColor = data.color_tema || '#f97316';
+                  e.currentTarget.style.color = data.color_tema || '#f97316';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.borderColor = '#262626';
+                  e.currentTarget.style.color = 'white';
+                }}
               >
                 <MapPin size={18} />
                 Ver ubicación
@@ -356,9 +413,11 @@ export default function GymProfile() {
                 href={igLink}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 font-semibold transition hover:text-orange-500"
+                className="inline-flex items-center gap-2 font-semibold transition"
+                onMouseOver={(e) => (e.currentTarget.style.color = data.color_tema || '#f97316')}
+                onMouseOut={(e) => (e.currentTarget.style.color = '#9ca3af')}
               >
-                <Instagram size={16} />
+                <InstagramIcon size={16} />
                 {data.instagram}
               </a>
             )}
