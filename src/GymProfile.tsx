@@ -56,7 +56,8 @@ export default function GymProfile() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    fetch(`https://rescate-gym-offline.tresbits010.workers.dev/api/get/${gymSlug}`)
+    // 🔥 Agregamos el timestamp para evitar la caché del navegador
+    fetch(`https://rescate-gym-offline.tresbits010.workers.dev/api/get/${gymSlug}?t=${Date.now()}`)
       .then(res => res.json())
       .then(json => {
         setData(json);
@@ -85,15 +86,54 @@ export default function GymProfile() {
   const bannerUrl = data.banner_url || "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop";
   const historia = data.historia || "Bienvenidos a nuestro centro de entrenamiento. Estamos comprometidos con tu progreso y bienestar físico y mental.";
   
-  const clasesData = data.clases?.length > 0 ? data.clases : [
-    { nombre: "Crossfit", horario: "18:00 - 19:00", profe: "Miguel" },
-    { nombre: "Zumba", horario: "19:00 - 20:00", profe: "Ana" },
-  ];
+  const clasesData = data.clases?.length > 0 ? data.clases : [];
   
   const planesData = data.planes?.length > 0 ? data.planes : [
     { nombre: "Pase Libre Diario", precio: "$15.000", beneficios: ["Musculación libre", "Duchas"] },
     { nombre: "Premium Mensual", precio: "$25.000", beneficios: ["Musculación", "Todas las clases", "Nutrición"] },
   ];
+
+  // 🔥 AGRUPACIÓN INTELIGENTE DE CLASES 🔥
+  const clasesAgrupadas = Object.values(
+    clasesData.reduce((acc: any, curr: any) => {
+      const key = `${curr.nombre}-${curr.profe}`;
+      
+      if (!acc[key]) {
+        acc[key] = {
+          nombre: curr.nombre,
+          profe: curr.profe,
+          schedules: {} // Mapeo: "Horario" -> Set de Días
+        };
+      }
+      
+      const horario = curr.horario;
+      if (!acc[key].schedules[horario]) {
+        acc[key].schedules[horario] = new Set();
+      }
+      
+      // Si `curr.dia` no viene, asumimos "0" para que no rompa
+      acc[key].schedules[horario].add(curr.dia ?? 0);
+      return acc;
+    }, {})
+  ).map((c: any) => {
+    const nombresDias = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+    
+    const turnos = Object.keys(c.schedules).map((horario) => {
+      const diasOrdenados = Array.from(c.schedules[horario]).sort((a: any, b: any) => a - b) as number[];
+      const diasTexto = diasOrdenados.map(d => nombresDias[d]).join(", ");
+      
+      return {
+        dias: diasTexto,
+        horario: horario
+      };
+    });
+
+    return {
+      nombre: c.nombre,
+      profe: c.profe,
+      turnos: turnos
+    };
+  });
 
   // Links limpios
   const waLink = data.whatsapp ? `https://wa.me/${data.whatsapp.replace(/\D/g, '')}` : "#";
@@ -123,7 +163,7 @@ export default function GymProfile() {
               <a
                 key={l.href}
                 href={l.href}
-                className="text-sm font-semibold text-neutral-400 transition hover:text-white"
+                className="text-sm font-semibold text-neutral-400 transition"
                 style={{ transition: 'color 0.3s' }}
                 onMouseOver={(e) => (e.currentTarget.style.color = data.color_tema || '#f97316')}
                 onMouseOut={(e) => (e.currentTarget.style.color = '#9ca3af')} // neutral-400
@@ -231,31 +271,51 @@ export default function GymProfile() {
           </div>
 
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {clasesData.map((c: any) => {
+            {clasesAgrupadas.length === 0 && (
+               <p className="col-span-full text-center text-neutral-500 italic">Aún no hay clases disponibles.</p>
+            )}
+            
+            {clasesAgrupadas.map((c: any, index: number) => {
               const Icon = claseIcono(c.nombre);
+              const tieneProfe = c.profe && c.profe.trim() !== "" && c.profe.trim() !== "Staff";
+
               return (
                 <article
-                  key={c.nombre}
+                  key={`${c.nombre}-${index}`}
                   className="group relative overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 p-7 transition hover:-translate-y-1"
                   style={{ transition: 'all 0.3s' }}
                   onMouseOver={(e) => (e.currentTarget.style.borderColor = data.color_tema || '#f97316')}
                   onMouseOut={(e) => (e.currentTarget.style.borderColor = '#262626')} // neutral-800
                 >
                   <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full blur-3xl transition opacity-10 group-hover:opacity-20" style={{ backgroundColor: 'var(--primary-color)' }} />
-                  <div className="relative">
+                  <div className="relative flex flex-col h-full">
                     <div className="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-neutral-800" style={{ color: 'var(--primary-color)' }}>
                       <Icon size={28} />
                     </div>
                     <h3 className="mt-6 text-2xl font-black uppercase">
                       {c.nombre}
                     </h3>
-                    <div className="mt-4 flex items-center gap-2 text-sm text-neutral-400">
-                      <Clock size={14} style={{ color: 'var(--primary-color)' }} />
-                      <span>{c.horario}</span>
+                    
+                    {/* Renderizado de las etiquetas de horarios */}
+                    <div className="mt-4 flex flex-col gap-2 flex-1">
+                      {c.turnos.map((turno: any, idx: number) => (
+                        <div key={idx} className="flex flex-col gap-1 rounded-lg bg-neutral-950 p-2.5 border border-neutral-800/60">
+                          <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                            {turno.dias}
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white">
+                            <Clock size={12} style={{ color: 'var(--primary-color)' }} />
+                            {turno.horario}
+                          </span>
+                        </div>
+                      ))}
                     </div>
-                    <p className="mt-2 text-sm italic text-neutral-400">
-                      con <span className="text-white">{c.profe}</span>
-                    </p>
+
+                    {tieneProfe && (
+                      <p className="mt-5 text-sm italic text-neutral-400">
+                        con <span className="text-white font-semibold">{c.profe}</span>
+                      </p>
+                    )}
                   </div>
                 </article>
               );
@@ -378,7 +438,8 @@ export default function GymProfile() {
                 href={waLink}
                 target="_blank"
                 rel="noreferrer"
-                className="group inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-green-600 px-8 py-6 text-lg font-black uppercase tracking-wider text-white shadow-[0_0_40px_-10px_#16a34a] transition hover:scale-[1.02] hover:shadow-[0_0_60px_-10px_#16a34a] md:text-xl"
+                className="group inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-green-600 px-8 py-6 text-lg font-black uppercase tracking-wider text-white transition hover:scale-[1.02]"
+                style={{ boxShadow: '0 0 40px -10px #16a34a' }}
               >
                 <MessageCircle size={26} className="transition group-hover:rotate-12" />
                 Escribinos por WhatsApp
