@@ -24,6 +24,7 @@ const claseIcono = (nombre: string) => {
 const navLinks = [
   { href: "#inicio", label: "Inicio" },
   { href: "#nosotros", label: "Nosotros" },
+  { href: "#galeria", label: "Instalaciones" },
   { href: "#clases", label: "Clases" },
   { href: "#planes", label: "Planes" },
   { href: "#contacto", label: "Contacto" },
@@ -54,6 +55,7 @@ export default function GymProfile() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [imagenAmpliada, setImagenAmpliada] = useState<string | null>(null);
 
   useEffect(() => {
     // 🔥 Agregamos el timestamp para evitar la caché del navegador
@@ -85,6 +87,14 @@ export default function GymProfile() {
   const logoUrl = data.logo_url || "https://placehold.co/150x150/111/f97316?text=Logo";
   const bannerUrl = data.banner_url || "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop";
   const historia = data.historia || "Bienvenidos a nuestro centro de entrenamiento. Estamos comprometidos con tu progreso y bienestar físico y mental.";
+  const galeriaData = data.galeria?.length > 0 ? data.galeria : [
+    "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=800&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=800&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1574680093668-39f50e4568b5?q=80&w=800&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=800&auto=format&fit=crop"
+  ];
   
   const clasesData = data.clases?.length > 0 ? data.clases : [];
   
@@ -93,7 +103,6 @@ export default function GymProfile() {
     { nombre: "Premium Mensual", precio: "$25.000", beneficios: ["Musculación", "Todas las clases", "Nutrición"] },
   ];
 
-  // 🔥 AGRUPACIÓN INTELIGENTE DE CLASES 🔥
   // 🔥 AGRUPACIÓN INTELIGENTE CON PROTECCIÓN 🔥
   const clasesAgrupadas = Object.values(
     clasesData.reduce((acc: any, curr: any) => {
@@ -255,7 +264,44 @@ export default function GymProfile() {
           </p>
         </div>
       </section>
+{/* GALERÍA */}
+      <section id="galeria" className="border-t border-neutral-800/60 bg-neutral-950 px-6 py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center">
+            <span className="text-xs font-bold uppercase tracking-[0.4em]" style={{ color: 'var(--primary-color)' }}>
+              El Gimnasio
+            </span>
+            <h2 className="mt-4 text-4xl font-black uppercase tracking-tight md:text-6xl">
+              Instalaciones
+            </h2>
+            <p className="mt-3 italic text-neutral-400">
+              Conocé el lugar donde vas a forjar tu mejor versión.
+            </p>
+          </div>
 
+          {/* Grilla de fotos */}
+          <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-5">
+            {galeriaData.map((imgUrl: string, idx: number) => (
+              <div
+                key={idx}
+                className="group relative aspect-square overflow-hidden rounded-2xl bg-neutral-900 cursor-pointer border border-transparent transition-all duration-300"
+                onClick={() => setImagenAmpliada(imgUrl)}
+                onMouseOver={(e) => (e.currentTarget.style.borderColor = data.color_tema || '#f97316')}
+                onMouseOut={(e) => (e.currentTarget.style.borderColor = 'transparent')}
+              >
+                {/* Capa oscura que desaparece al hacer hover */}
+                <div className="absolute inset-0 z-10 bg-black/40 transition-opacity duration-300 group-hover:opacity-0" />
+                
+                <img
+                  src={imgUrl}
+                  alt={`Instalación ${idx + 1}`}
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
       {/* CLASES */}
       <section
         id="clases"
@@ -493,6 +539,29 @@ export default function GymProfile() {
           © {new Date().getFullYear()} {data.nombre} — Forjá tu fuerza.
         </p>
       </footer>
+      {/* LIGHTBOX (VISOR DE IMÁGENES AMPLIADAS) */}
+      {imagenAmpliada && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 backdrop-blur-sm transition-opacity"
+          onClick={() => setImagenAmpliada(null)} // Cierra al hacer clic en el fondo
+        >
+          {/* Botón de cerrar */}
+          <button 
+            className="absolute right-6 top-6 rounded-full bg-neutral-800/50 p-3 text-white transition hover:bg-neutral-700 hover:text-white"
+            onClick={() => setImagenAmpliada(null)}
+          >
+            <X size={28} />
+          </button>
+
+          {/* Imagen en tamaño completo */}
+          <img 
+            src={imagenAmpliada} 
+            alt="Vista ampliada" 
+            className="max-h-[90vh] max-w-[95vw] rounded-xl object-contain shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+            onClick={(e) => e.stopPropagation()} // Evita que se cierre si hacés clic en la foto misma
+          />
+        </div>
+      )}
     </main>
   );
 }
